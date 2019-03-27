@@ -19,16 +19,8 @@ async def on_ready():
     print('------')
 
 
-@client.event
-async def on_message(message):
-    if message.author == client.user:
-        print("aa")
-        return
-
-    if message.content.startsWith('hello'):
-        await message.channel.send('Hello idiot!')
-
-
-
+@bot.command()
+async def echo(ctx, message):
+    await ctx.send(message)
 
 bot.run(TOKEN)
