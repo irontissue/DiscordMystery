@@ -1,7 +1,6 @@
-import discord
 from discord.ext import commands
 import logging
-import random
+from Game import Game
 
 logging.basicConfig(level=logging.INFO)
 
@@ -18,20 +17,10 @@ async def on_ready():
     print('------')
 
 
-# 560612701412392970
 @bot.command()
-async def start_game(ctx):
-    channel_name = "Lobby"
-    lobby_id, lobby = get_channel_by_name(channel_name)
-    for member in lobby.members:
-        await ctx.send("Moving " + str(member) + " to Ballroom.")
-        await member.move_to(get_channel_by_name("Ballroom")[1])
-
-
-def get_channel_by_name(name):
-    for channel in bot.get_all_channels():
-        if channel.name == name:
-            return channel.id, channel
+async def start_game(ctx, roles):
+    x = Game(ctx, bot, roles)
+    await x.start_game(ctx)
 
 
 bot.run(TOKEN)
