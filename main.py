@@ -1,6 +1,6 @@
 from discord.ext import commands
 import logging
-from Game import Game
+from SimpleAvalonGame import SimpleAvalonGame
 
 logging.basicConfig(level=logging.INFO)
 
@@ -18,9 +18,11 @@ async def on_ready():
 
 
 @bot.command()
-async def start_game(ctx, roles):
-    x = Game(ctx, bot, roles)
-    await x.start_game(ctx)
+async def start_game(ctx, *roles):
+    x = SimpleAvalonGame(ctx, bot, roles)
+    success = await x.game_init()
+    if success:
+        await x.start_game()
 
 
 bot.run(TOKEN)
