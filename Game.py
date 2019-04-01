@@ -15,6 +15,8 @@ class Game:
         self.channels = list(bot.get_all_channels())
         lobby = self.get_channel_by_name('Lobby')
         self.players = lobby.members
+        self.phases = []
+        self.current_phase = 0
 
     async def game_init(self):
         try:
@@ -31,11 +33,21 @@ class Game:
             return False
 
     async def start_game(self):
-        for member in self.players:
-            await self.ctx.send("Moving " + str(member) + " to Ballroom.")
-            await member.move_to(self.get_channel_by_name("Ballroom"))
+        await self.phases[self.current_phase].begin_phase()
 
     def get_channel_by_name(self, name):
         for channel in self.channels:
             if channel.name == name:
                 return channel
+
+    def add_phase(self, phase):
+        phase.parent_game = self
+        phase.phase_number = len(self.phases) + 1
+        self.phases.append(phase)
+
+    async def next_phase(self):
+        self.current_phase += 1
+        if self.current_phase >= len(self.phases):
+            await self.ctx.send("Game is over haha lol")
+        else:
+            await self.phases[self.current_phase].begin_phase()

@@ -8,6 +8,7 @@ import collections
 #   Exclusions:     a list of other roles it CANNOT be in the game with, else the game is unplayable.
 #   Knowledge:      a dictionary of other TAGS it has information of when the game starts, mapping TAG (String) to
 #                   knowledge level of that role (defined below).
+#   Knows Self:     A boolean indicating if this role knows who they themselves are. Usually this will be True...
 #   Limit:          an integer value which describes the max number of this role that can be in a single game.
 class Role:
 
@@ -21,7 +22,7 @@ class Role:
     # Knows specifically who occupies this tag.
     KNOWS_KNOWLEDGE = 3
 
-    def __init__(self, name=None, tags=None, dependencies=None, exclusions=None, knowledge=None, limit=10):
+    def __init__(self, name=None, tags=None, dependencies=None, exclusions=None, knowledge=None, knows_self_role=True, limit=10):
         if name is None:
             self.name = "Unknown Role"
         else:
@@ -44,6 +45,7 @@ class Role:
             self.knowledge = knowledge
         self.limit = limit
         self.member = None
+        self.knows_self_role = knows_self_role
 
     # Returns True/False if the given role list (list of Strings) is a valid role list. Then, returns it as
     # a list of Role objects, using the given dictionary. If False is returned, then instead of a list of Roles
@@ -52,7 +54,8 @@ class Role:
     def check_valid_roles(role_list, all_roles_dict):
         roles_count = collections.defaultdict(int)
         true_roles = []
-        for role in role_list:
+        for r in role_list:
+            role = r.lower()
             if role not in all_roles_dict:
                 return False, "Role \"" + str(role) + "\" is not a valid role for this game type!"
             else:
