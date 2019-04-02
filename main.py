@@ -4,7 +4,9 @@ from SimpleAvalonGame import SimpleAvalonGame
 
 logging.basicConfig(level=logging.INFO)
 
-TOKEN = 'NTYwNTQyMjY4MjUxOTYzNDAy.D31dcA.BF8HIB6fvbY2uizuBfJDTSExk50'
+with open('token', 'r') as file:
+    TOKEN = str(file.read())
+
 
 bot = commands.Bot(command_prefix="!", status=discord.Status.idle, activity=discord.Game(name="Booting..."))
 
@@ -25,4 +27,5 @@ async def start_game(ctx, *roles):
         await x.start_game()
 
 
+print(TOKEN)
 bot.run(TOKEN)
