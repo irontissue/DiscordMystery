@@ -1,19 +1,19 @@
 from discord.ext import commands
-import logging
+import logging, discord
 from SimpleAvalonGame import SimpleAvalonGame
 
 logging.basicConfig(level=logging.INFO)
 
 TOKEN = 'NTYwNTQyMjY4MjUxOTYzNDAy.D31dcA.BF8HIB6fvbY2uizuBfJDTSExk50'
 
-bot = commands.Bot(command_prefix='!', description='Discord Mystery Bot Controller')
+bot = commands.Bot(command_prefix="!", status=discord.Status.idle, activity=discord.Game(name="Booting..."))
 
 
 @bot.event
 async def on_ready():
     print('Logged in as')
     print(bot.user.name)
-    print(bot.user.id)
+    await bot.change_presence(status=discord.Status.online, activity=discord.Game(name="Active!"))
     print('------')
 
 

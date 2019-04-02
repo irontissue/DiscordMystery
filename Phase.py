@@ -1,4 +1,5 @@
 import asyncio
+from random import randint
 
 
 # A phase has a name, duration (seconds), and a reference to its Game that it is a part of. phase_number is given to it
@@ -46,5 +47,8 @@ class TestDiscuss(Phase):
     async def begin_phase(self):
         await super().begin_phase()
         for member in self.parent_game.players:
-            await self.parent_game.ctx.send("Moving " + str(member) + " to Ballroom.")
-            await member.move_to(self.parent_game.get_channel_by_name("Ballroom"))
+            guild = self.parent_game.bot.get_guild(self.parent_game.ctx.guild.id)
+            randVC = randint(1, len(guild.voice_channels) - 1)
+            await self.parent_game.ctx.send(f"Moving {member.name} to {guild.voice_channels[randVC]}.")
+            await member.move_to(self.parent_game.get_channel_by_name(str(guild.voice_channels[randVC])))
+            await member.send("Your role is Merlin.")
