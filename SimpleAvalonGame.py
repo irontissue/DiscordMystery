@@ -29,6 +29,8 @@ class SimpleAvalonGame(Game):
             self.wanted_roles = wanted_roles
         self.roles = []
         self.add_phase(Phase.TestDiscuss(self))
+        self.add_phase(Phase.AvalonVotePhase(self))
+        self.add_phase(Phase.TestDiscuss(self))
 
     async def game_init(self):
         try:
@@ -57,3 +59,6 @@ class SimpleAvalonGame(Game):
 
     async def start_game(self):
         await super().start_game()
+
+    async def feed_dm(self, message):
+        await self.phases[self.current_phase_idx].feed_dm(message)
