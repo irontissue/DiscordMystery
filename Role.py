@@ -148,3 +148,21 @@ class Percival(Role):
     def __init__(self):
         knowledge = {'MerlinOrMorgana': Role.KNOWS_KNOWLEDGE}
         super().__init__(Percival.OFFICIAL_NAME, tags=[Percival.OFFICIAL_NAME, 'Good'], knowledge=knowledge, limit=1)
+
+
+class DarkServant(Role):
+
+    OFFICIAL_NAME = 'Dark Servant'
+
+    def __init__(self):
+        knowledge = {'Bad': Role.EXISTS_KNOWLEDGE}
+        super().__init__(DarkServant.OFFICIAL_NAME, tags=[DarkServant.OFFICIAL_NAME, 'Bad'], knowledge=knowledge,
+                         knows_self_role=False, limit=999)
+
+
+class LightServant(Role):
+
+    OFFICIAL_NAME = 'Light Servant'
+
+    def __init__(self):
+        knowledge = {}

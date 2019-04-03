@@ -1,4 +1,3 @@
-from discord.ext import commands
 import Role
 import logging
 import Phase
@@ -7,20 +6,12 @@ from Game import Game
 logging.basicConfig(level=logging.INFO)
 
 
-# This game doesn't work at all yet. Just used for testing with familiar names we know from Resistance: Avalon.
-class SimpleAvalonGame(Game):
+class SacredTrophyGame(Game):
 
-    minimum_players = 1
+    minimum_players = 5
 
-    ALL_ROLES = {'merlin': lambda: Role.Merlin(),
-                 'mordred': lambda: Role.Mordred(),
-                 'oberon': lambda: Role.Oberon(),
-                 'morgana': lambda: Role.Morgana(),
-                 'percival': lambda: Role.Percival(),
-                 'loyal Servant': lambda: Role.LoyalServant(),
-                 'minion of Mordred': lambda: Role.MinionOfMordred(),
-                 'good': lambda: Role.LoyalServant(),
-                 'bad': lambda: Role.MinionOfMordred()}
+    ALL_ROLES = {'good': lambda: Role.LightServant(),
+                 'bad': lambda: Role.DarkServant()}
 
     def __init__(self, ctx, bot, wanted_roles=None):
         super().__init__(ctx, bot, wanted_roles)
