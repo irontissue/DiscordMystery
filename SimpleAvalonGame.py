@@ -38,8 +38,12 @@ class SimpleAvalonGame(Game):
             if len(self.players) >= self.minimum_players:
                 await self.ctx.send("Game initialized with players: ")
                 await self.ctx.send(', '.join(str(p.name) for p in self.players))
-                await self.ctx.send("Game initialized with channels: ")
-                await self.ctx.send(', '.join(str(p.name) for p in self.channels))
+                valid_channels = self.generate_channels()
+                if valid_channels:
+                    await self.ctx.send("Game channels are valid...")
+                else:
+                    await self.ctx.send("Game channels are invalid.")
+                    return False
             else:
                 await self.ctx.send("Game cannot start without a minimum of " + str(self.minimum_players) + " players!")
                 return False
@@ -63,3 +67,6 @@ class SimpleAvalonGame(Game):
 
     async def feed_dm(self, message):
         await self.phases[self.current_phase_idx].feed_dm(message)
+
+    def generate_channels(self):
+        return True

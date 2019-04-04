@@ -10,10 +10,11 @@ class Game:
 
     minimum_players = 1
 
+    HELP_DESCRIPTION = "Test Game."
+
     def __init__(self, ctx, bot, wanted_roles):
         self.bot = bot
         self.ctx = ctx
-        self.channels = list(bot.get_all_channels())
         lobby = self.get_channel_by_name('Lobby')
         self.players = lobby.members
         self.phases = []
@@ -25,8 +26,12 @@ class Game:
             if len(self.players) >= self.minimum_players:
                 await self.ctx.send("Game initialized with players: ")
                 await self.ctx.send(', '.join(str(p.name) for p in self.players))
-                await self.ctx.send("Game initialized with channels: ")
-                await self.ctx.send(', '.join(str(p.name) for p in self.channels))
+                valid_channels = self.generate_channels()
+                if valid_channels:
+                    await self.ctx.send("Game channels have been created...")
+                else:
+                    await self.ctx.send("Game channels could not be initialized properly.")
+                    return False
                 return True
             else:
                 await self.ctx.send("Game cannot start without a minimum of " + str(self.minimum_players) + " players!")
@@ -38,7 +43,7 @@ class Game:
         await self.phases[self.current_phase_idx].begin_phase()
 
     def get_channel_by_name(self, name):
-        for channel in self.channels:
+        for channel in self.guild.voice_channels:
             if channel.name == name:
                 return channel
 
@@ -62,3 +67,9 @@ class Game:
     async def feed_message(self, message):
         # print(f"{message}")
         return
+
+    def generate_channels(self):
+        return True
+
+    def help(self):
+        return Game.HELP_DESCRIPTION

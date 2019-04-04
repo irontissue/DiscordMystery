@@ -165,4 +165,6 @@ class LightServant(Role):
     OFFICIAL_NAME = 'Light Servant'
 
     def __init__(self):
-        knowledge = {}
+        knowledge = {'Good': Role.EXISTS_KNOWLEDGE}
+        super().__init__(LightServant.OFFICIAL_NAME, tags=[LightServant.OFFICIAL_NAME, 'Good'], knowledge=knowledge,
+                         knows_self_role=False, limit=999)

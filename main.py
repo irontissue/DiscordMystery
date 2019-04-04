@@ -1,6 +1,7 @@
 from discord.ext import commands
 import logging, discord
-from SimpleAvalonGame import SimpleAvalonGame
+import SimpleAvalonGame
+import SacredTrophyGame
 import globals
 import asyncio
 
@@ -23,9 +24,22 @@ async def on_ready():
 @bot.command()
 async def start_game(ctx, *roles):
     if globals.current_game is not None:
-        await ctx.send("Can't start game, another is already in progress.")
+        await ctx.send("Another game is already in progress.")
     else:
-        globals.current_game = SimpleAvalonGame(ctx, bot, roles)
+        globals.current_game = SimpleAvalonGame.SimpleAvalonGame(ctx, bot, roles)
+        success = await globals.current_game.game_init()
+        if success:
+            await globals.current_game.start_game()
+        else:
+            globals.current_game = None
+
+
+@bot.command()
+async def sacred_trophy(ctx, *roles):
+    if globals.current_game is not None:
+        await ctx.send("Another game is already in progress.")
+    else:
+        globals.current_game = SacredTrophyGame.SacredTrophyGame(ctx, bot, roles)
         success = await globals.current_game.game_init()
         if success:
             await globals.current_game.start_game()
