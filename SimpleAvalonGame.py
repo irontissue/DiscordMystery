@@ -3,11 +3,13 @@ import Role
 import logging
 import Phase
 from Game import Game
+import discord
 
 logging.basicConfig(level=logging.INFO)
 
 
 # This game doesn't work at all yet. Just used for testing with familiar names we know from Resistance: Avalon.
+# Use this as an example reference for making other games
 class SimpleAvalonGame(Game):
 
     minimum_players = 1
@@ -21,6 +23,10 @@ class SimpleAvalonGame(Game):
                  'minion of Mordred': lambda: Role.MinionOfMordred(),
                  'good': lambda: Role.LoyalServant(),
                  'bad': lambda: Role.MinionOfMordred()}
+
+    CATEGORY_CHANNEL_NAME = 'Simple Avalon Game'
+    REQUIRED_VOICE_CHANNELS = ['Room']
+    REQUIRED_TEXT_CHANNELS = ['general']
 
     def __init__(self, ctx, bot, wanted_roles=None):
         super().__init__(ctx, bot, wanted_roles)

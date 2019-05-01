@@ -76,13 +76,13 @@ class TestDiscuss(Phase):
 
     async def begin_phase(self):
         await super().begin_phase()
-        for member in self.parent_game.players:
-            guild = self.parent_game.guild
-            randVC = randint(1, len(guild.voice_channels) - 1)
-            await self.parent_game.ctx.send(f"Moving {member.name} to {guild.voice_channels[randVC]}.")
-            await member.move_to(self.parent_game.get_channel_by_name(str(guild.voice_channels[randVC])))
+        # for member in self.parent_game.players:
+        #     guild = self.parent_game.guild
+        #     randVC = randint(1, len(guild.voice_channels) - 1)
+        #     await self.parent_game.ctx.send(f"Moving {member.name} to {guild.voice_channels[randVC]}.")
+        #     await member.move_to(self.parent_game.get_channel_by_name(str(guild.voice_channels[randVC])))
 
     async def start_timer(self):
         await super().start_timer()
-        for member in self.parent_game.players:
-            await member.move_to(self.parent_game.get_channel_by_name("Lobby"))
+        # for member in self.parent_game.players:
+        #     await member.move_to(self.parent_game.get_channel_by_name("Lobby"))

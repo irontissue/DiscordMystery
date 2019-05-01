@@ -15,11 +15,11 @@ class Game:
     def __init__(self, ctx, bot, wanted_roles):
         self.bot = bot
         self.ctx = ctx
-        lobby = self.get_channel_by_name('Lobby')
-        self.players = lobby.members
         self.phases = []
         self.current_phase_idx = 0
         self.guild = self.bot.get_guild(self.ctx.guild.id)
+        lobby = self.get_channel_by_name('Lobby')
+        self.players = lobby.members
 
     async def game_init(self):
         try:
@@ -43,9 +43,10 @@ class Game:
         await self.phases[self.current_phase_idx].begin_phase()
 
     def get_channel_by_name(self, name):
-        for channel in self.guild.voice_channels:
+        for channel in self.guild.channels:
             if channel.name == name:
                 return channel
+        return None
 
     def add_phase(self, phase):
         phase.parent_game = self
