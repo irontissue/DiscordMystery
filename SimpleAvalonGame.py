@@ -25,8 +25,8 @@ class SimpleAvalonGame(Game):
                  'bad': lambda: Role.MinionOfMordred()}
 
     CATEGORY_CHANNEL_NAME = 'Simple Avalon Game'
-    REQUIRED_VOICE_CHANNELS = ['Room']
-    REQUIRED_TEXT_CHANNELS = ['general']
+    REQUIRED_VOICE_CHANNELS = {'Room': 1}
+    REQUIRED_TEXT_CHANNELS = {'general': 1}
 
     def __init__(self, ctx, bot, wanted_roles=None):
         super().__init__(ctx, bot, wanted_roles)

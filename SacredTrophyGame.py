@@ -3,6 +3,7 @@ import logging
 import Phase
 from Game import Game
 import discord
+from collections import Counter
 
 logging.basicConfig(level=logging.INFO)
 
@@ -17,8 +18,8 @@ class SacredTrophyGame(Game):
     HELP_DESCRIPTION = "Game help: Figure it out, tough luck lol"
 
     CATEGORY_CHANNEL_NAME = 'Sacred Trophy Game'
-    REQUIRED_VOICE_CHANNELS = ['Oracle Room', 'Mirror Room', 'Small Cave', 'Small Cave']
-    REQUIRED_TEXT_CHANNELS = ['general']
+    REQUIRED_VOICE_CHANNELS = {'Oracle Room': 1, 'Mirror Room': 1, 'Small Cave': 2}
+    REQUIRED_TEXT_CHANNELS = {}
 
     def __init__(self, ctx, bot, wanted_roles=None):
         super().__init__(ctx, bot, wanted_roles)
@@ -73,16 +74,34 @@ class SacredTrophyGame(Game):
             await self.ctx.send("A channel already exists with name: \"" + SacredTrophyGame.CATEGORY_CHANNEL_NAME + "\". Could not initialize game.")
             return False
         cat = self.get_channel_by_name(SacredTrophyGame.CATEGORY_CHANNEL_NAME)
-        voices = dict(zip([s.name for s in cat.voice_channels], cat.voice_channels))
-        texts = dict(zip([s.name for s in cat.text_channels], cat.text_channels))
-        for voice_chan in SacredTrophyGame.REQUIRED_VOICE_CHANNELS:
-            if voice_chan not in voices:
-                await cat.create_voice_channel(voice_chan)
-                voices[voice_chan] = self.get_channel_by_name(voice_chan)
-        for text_chan in SacredTrophyGame.REQUIRED_TEXT_CHANNELS:
-            if text_chan not in texts:
-                await cat.create_text_channel(text_chan)
-                texts[text_chan] = self.get_channel_by_name(text_chan)
+        for role in self.guild.roles:
+            await cat.set_permissions(role, connect=False, mute_members=False, move_members=False)
+        voices = Counter([s.name for s in cat.voice_channels])
+        texts = Counter([s.name for s in cat.text_channels])
+        for voice_chan_name in SacredTrophyGame.REQUIRED_VOICE_CHANNELS:
+            if voice_chan_name not in voices:
+                await cat.create_voice_channel(voice_chan_name)
+                voices[voice_chan_name] = 1
+            elif voices[voice_chan_name] < SacredTrophyGame.REQUIRED_VOICE_CHANNELS[voice_chan_name]:
+                await cat.create_voice_channel(voice_chan_name)
+                voices[voice_chan_name] += 1
+            else:
+                while voices[voice_chan_name] > SacredTrophyGame.REQUIRED_VOICE_CHANNELS[voice_chan_name]:
+                    await Game.get_channel_from_category(voice_chan_name, cat).delete()
+                    voices[voice_chan_name] -= 1
+        for voice_chan in cat.voice_channels:
+            await voice_chan.edit(sync_permissions=True)
+        for text_chan_name in SacredTrophyGame.REQUIRED_TEXT_CHANNELS:
+            if text_chan_name not in texts:
+                await cat.create_text_channel(text_chan_name)
+                texts[text_chan_name] = 1
+            elif texts[text_chan_name] < SacredTrophyGame.REQUIRED_TEXT_CHANNELS[text_chan_name]:
+                await cat.create_text_channel(text_chan_name)
+                texts[text_chan_name] += 1
+            else:
+                while texts[text_chan_name] > SacredTrophyGame.REQUIRED_TEXT_CHANNELS[text_chan_name]:
+                    await Game.get_channel_from_category(text_chan_name, cat).delete()
+                    texts[text_chan_name] -= 1
         return True
 
     def help(self):

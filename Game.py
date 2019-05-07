@@ -2,6 +2,7 @@ from discord.ext import commands
 import Role
 import logging
 import globals
+import discord
 
 logging.basicConfig(level=logging.INFO)
 
@@ -42,8 +43,19 @@ class Game:
     async def start_game(self):
         await self.phases[self.current_phase_idx].begin_phase()
 
+    # Returns channel given the name.
     def get_channel_by_name(self, name):
         for channel in self.guild.channels:
+            if channel.name == name:
+                return channel
+        return None
+
+    # Returns channel given the name, from given category channel.
+    @staticmethod
+    def get_channel_from_category(name, cat):
+        if type(cat) != discord.channel.CategoryChannel:
+            print(f"ERROR: get_channel_from_category was incorrectly given a {type(cat)} as input.")
+        for channel in cat.channels:
             if channel.name == name:
                 return channel
         return None
