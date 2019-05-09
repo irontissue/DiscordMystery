@@ -22,7 +22,13 @@ class Role:
     # Knows specifically who occupies this tag.
     KNOWS_KNOWLEDGE = 3
 
-    def __init__(self, name=None, tags=None, dependencies=None, exclusions=None, knowledge=None, knows_self_role=True, limit=10):
+    OFFICIAL_NAME = 'Default Role'
+    KNOWLEDGE = {}
+    DEPENDENCIES = []
+    EXCLUSIONS = []
+    TAGS = []
+
+    def __init__(self, member, name=None, tags=None, dependencies=None, exclusions=None, knowledge=None, knows_self_role=True, limit=10):
         if name is None:
             self.name = "Unknown Role"
         else:
@@ -44,37 +50,43 @@ class Role:
         else:
             self.knowledge = knowledge
         self.limit = limit
-        self.member = None
+        self.member = member
         self.knows_self_role = knows_self_role
 
     # Returns True/False if the given role list (list of Strings) is a valid role list. Then, returns it as
     # a list of Role objects, using the given dictionary. If False is returned, then instead of a list of Roles
     # this returns a String with the error in the role list.
     @staticmethod
-    def check_valid_roles(role_list, all_roles_dict):
-        roles_count = collections.defaultdict(int)
-        true_roles = []
-        for r in role_list:
-            role = r.lower()
-            if role not in all_roles_dict:
-                return False, "Role \"" + str(role) + "\" is not a valid role for this game type!"
-            else:
-                my_role = all_roles_dict[role]()
-                true_roles.append(my_role)
-                roles_count[role] += 1
-                if roles_count[role] > my_role.limit:
-                    return False, "You can't have more than " + str(my_role.limit) + \
-                           " of role \"" + str(role) + "\" in this game!"
+    def check_valid_roles(role_list, all_roles_dict, num_players):
+        try:
+            if len(role_list) != num_players:
+                return False, f"Incorrect number of roles ({len(role_list)}) given for {num_players} players."
+            roles_count = collections.defaultdict(int)
+            true_roles = []
+            for r in role_list:
+                role = r.lower()
+                if role not in all_roles_dict:
+                    return False, "Role \"" + str(role) + "\" is not a valid role for this game type!"
+                else:
+                    my_role = all_roles_dict[role]
+                    true_roles.append(my_role)
+                    roles_count[role] += 1
+                    if roles_count[role] > my_role.LIMIT:
+                        return False, "You can't have more than " + str(my_role.LIMIT) + \
+                               " of role \"" + str(role) + "\" in this game!"
 
-        for role in true_roles:
-            for dependent in role.dependencies:
-                if dependent not in role_list:
-                    return False, "\"" + str(role.name) + "\" requires that \"" + str(dependent) + "\" is in the game!"
-            for exclusion in role.exclusions:
-                if exclusion in role_list:
-                    return False, "\"" + str(role.name) + "\" requires that \"" + str(exclusion) +\
-                           "\" can't be in the game!"
-        return True, true_roles
+            for role in true_roles:
+                for dependent in role.DEPENDENCIES:
+                    if dependent not in role_list:
+                        return False, "\"" + str(role.name) + "\" requires that \"" + str(dependent) + "\" is in the game!"
+                for exclusion in role.EXCLUSIONS:
+                    if exclusion in role_list:
+                        return False, "\"" + str(role.name) + "\" requires that \"" + str(exclusion) +\
+                               "\" can't be in the game!"
+            return True, true_roles
+        except Exception as e:
+            print(e)
+            return False, str(e)
 
     def __eq__(self, other):
         if other.name == self.name:
@@ -88,83 +100,123 @@ class Role:
 class LoyalServant(Role):
 
     OFFICIAL_NAME = 'Loyal Servant'
+    KNOWLEDGE = {}
+    DEPENDENCIES = []
+    EXCLUSIONS = []
+    TAGS = [OFFICIAL_NAME, 'Good']
+    LIMIT = 10
 
-    def __init__(self):
-        super().__init__(LoyalServant.OFFICIAL_NAME, tags=[LoyalServant.OFFICIAL_NAME, 'Good'])
+    def __init__(self, member):
+        super().__init__(member, name=LoyalServant.OFFICIAL_NAME, tags=LoyalServant.TAGS)
 
 
 class MinionOfMordred(Role):
 
     OFFICIAL_NAME = 'Minion of Mordred'
+    KNOWLEDGE = {}
+    DEPENDENCIES = []
+    EXCLUSIONS = []
+    TAGS = [OFFICIAL_NAME, 'Bad']
+    LIMIT = 10
 
-    def __init__(self):
-        super().__init__(MinionOfMordred.OFFICIAL_NAME, tags=[MinionOfMordred.OFFICIAL_NAME, 'Bad'])
+    def __init__(self, member):
+        super().__init__(member, name=MinionOfMordred.OFFICIAL_NAME, tags=MinionOfMordred.TAGS)
 
 
 class Mordred(Role):
 
     OFFICIAL_NAME = 'Mordred'
+    KNOWLEDGE = {'Bad': Role.KNOWS_KNOWLEDGE, 'Oberon': Role.EXISTS_NUM_KNOWLEDGE}
+    DEPENDENCIES = ['Merlin']
+    EXCLUSIONS = []
+    TAGS = [OFFICIAL_NAME, 'Bad']
+    LIMIT = 1
 
-    def __init__(self):
-        knowledge = {'Bad': Role.KNOWS_KNOWLEDGE, 'Oberon': Role.EXISTS_NUM_KNOWLEDGE}
-        super().__init__(Mordred.OFFICIAL_NAME, tags=[Mordred.OFFICIAL_NAME, 'Bad'], dependencies=['Merlin'],
-                         knowledge=knowledge, limit=1)
+    def __init__(self, member):
+        super().__init__(member, name=Mordred.OFFICIAL_NAME, tags=Mordred.TAGS, dependencies=Mordred.DEPENDENCIES,
+                         knowledge=Mordred.KNOWLEDGE, limit=Mordred.LIMIT)
 
 
 class Merlin(Role):
 
     OFFICIAL_NAME = 'Merlin'
+    KNOWLEDGE = {'Good': Role.KNOWS_KNOWLEDGE,
+                 'Bad': Role.KNOWS_KNOWLEDGE,
+                 Mordred.OFFICIAL_NAME: Role.EXISTS_NUM_KNOWLEDGE}
+    DEPENDENCIES = []
+    EXCLUSIONS = []
+    TAGS = [OFFICIAL_NAME, 'Good', 'MerlinOrMorgana']
+    LIMIT = 1
 
-    def __init__(self):
-        knowledge = {'Good': Role.KNOWS_KNOWLEDGE,
-                     'Bad': Role.KNOWS_KNOWLEDGE,
-                     Mordred.OFFICIAL_NAME: Role.EXISTS_NUM_KNOWLEDGE}
-        super().__init__(Merlin.OFFICIAL_NAME, tags=[Merlin.OFFICIAL_NAME, 'Good', 'MerlinOrMorgana'],
-                         knowledge=knowledge, limit=1)
+    def __init__(self, member):
+        super().__init__(member, name=Merlin.OFFICIAL_NAME, tags=Merlin.TAGS,
+                         knowledge=Merlin.KNOWLEDGE, limit=Merlin.LIMIT)
 
 
 class Morgana(Role):
 
     OFFICIAL_NAME = 'Morgana'
+    KNOWLEDGE = {'Bad': Role.KNOWS_KNOWLEDGE, 'Oberon': Role.EXISTS_NUM_KNOWLEDGE}
+    DEPENDENCIES = ['Percival']
+    EXCLUSIONS = []
+    TAGS = [OFFICIAL_NAME, 'Bad', 'MerlinOrMorgana']
+    LIMIT = 1
 
-    def __init__(self):
-        knowledge = {'Bad': Role.KNOWS_KNOWLEDGE, 'Oberon': Role.EXISTS_NUM_KNOWLEDGE}
-        super().__init__(Morgana.OFFICIAL_NAME, tags=[Morgana.OFFICIAL_NAME, 'Bad', 'MerlinOrMorgana'],
-                         dependencies=['Percival'], knowledge=knowledge, limit=1)
+    def __init__(self, member):
+        super().__init__(member, name=Morgana.OFFICIAL_NAME, tags=Morgana.TAGS,
+                         dependencies=Morgana.DEPENDENCIES, knowledge=Morgana.KNOWLEDGE, limit=Morgana.LIMIT)
 
 
 class Oberon(Role):
 
     OFFICIAL_NAME = 'Oberon'
+    KNOWLEDGE = {}
+    DEPENDENCIES = []
+    EXCLUSIONS = []
+    TAGS = [OFFICIAL_NAME, 'Bad']
+    LIMIT = 1
 
-    def __init__(self):
-        super().__init__(Oberon.OFFICIAL_NAME, tags=[Oberon.OFFICIAL_NAME, 'Bad'], limit=1)
+    def __init__(self, member):
+        super().__init__(member, name=Oberon.OFFICIAL_NAME, tags=Oberon.TAGS, limit=Oberon.LIMIT)
 
 
 class Percival(Role):
 
     OFFICIAL_NAME = 'Percival'
+    KNOWLEDGE = {'MerlinOrMorgana': Role.KNOWS_KNOWLEDGE}
+    DEPENDENCIES = []
+    EXCLUSIONS = []
+    TAGS = [OFFICIAL_NAME, 'Good']
+    LIMIT = 1
 
-    def __init__(self):
-        knowledge = {'MerlinOrMorgana': Role.KNOWS_KNOWLEDGE}
-        super().__init__(Percival.OFFICIAL_NAME, tags=[Percival.OFFICIAL_NAME, 'Good'], knowledge=knowledge, limit=1)
+    def __init__(self, member):
+        super().__init__(member, name=Percival.OFFICIAL_NAME, tags=Percival.TAGS,
+                         knowledge=Percival.KNOWLEDGE, limit=Percival.LIMIT)
 
 
 class DarkServant(Role):
 
     OFFICIAL_NAME = 'Dark Servant'
+    KNOWLEDGE = {'Bad': Role.EXISTS_KNOWLEDGE}
+    DEPENDENCIES = []
+    EXCLUSIONS = []
+    TAGS = [OFFICIAL_NAME, 'Bad']
+    LIMIT = 999
 
-    def __init__(self):
-        knowledge = {'Bad': Role.EXISTS_KNOWLEDGE}
-        super().__init__(DarkServant.OFFICIAL_NAME, tags=[DarkServant.OFFICIAL_NAME, 'Bad'], knowledge=knowledge,
-                         knows_self_role=False, limit=999)
+    def __init__(self, member):
+        super().__init__(member, name=DarkServant.OFFICIAL_NAME, tags=DarkServant.TAGS,
+                         knowledge=DarkServant.KNOWLEDGE, knows_self_role=False, limit=DarkServant.LIMIT)
 
 
 class LightServant(Role):
 
     OFFICIAL_NAME = 'Light Servant'
+    KNOWLEDGE = {'Good': Role.EXISTS_KNOWLEDGE}
+    DEPENDENCIES = []
+    EXCLUSIONS = []
+    TAGS = [OFFICIAL_NAME, 'Good']
+    LIMIT = 999
 
-    def __init__(self):
-        knowledge = {'Good': Role.EXISTS_KNOWLEDGE}
-        super().__init__(LightServant.OFFICIAL_NAME, tags=[LightServant.OFFICIAL_NAME, 'Good'], knowledge=knowledge,
-                         knows_self_role=False, limit=999)
+    def __init__(self, member):
+        super().__init__(member, name=LightServant.OFFICIAL_NAME, tags=LightServant.TAGS,
+                         knowledge=LightServant.KNOWLEDGE, knows_self_role=False, limit=DarkServant.LIMIT)

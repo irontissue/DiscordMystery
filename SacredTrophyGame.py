@@ -12,13 +12,15 @@ class SacredTrophyGame(Game):
 
     minimum_players = 1
 
-    ALL_ROLES = {'good': lambda: Role.LightServant(),
-                 'bad': lambda: Role.DarkServant()}
+    ALL_ROLES = {'good': Role.LightServant,
+                 'bad': Role.DarkServant}
 
-    HELP_DESCRIPTION = "Game help: Figure it out, tough luck lol"
+    HELP_DESCRIPTION = "Game help: You don't know who you are at the start. Use info given in the various rooms to" \
+                       "learn more about yourself and others. Vote on players to send to the Trophy Room, in which" \
+                       "players can choose to touch the trophy. If  First faction to 3 wins."
 
     CATEGORY_CHANNEL_NAME = 'Sacred Trophy Game'
-    REQUIRED_VOICE_CHANNELS = {'Oracle Room': 1, 'Mirror Room': 1, 'Small Cave': 2}
+    REQUIRED_VOICE_CHANNELS = {'Oracle Room': 1, 'Mirror Room': 1, 'Small Cave': 2, 'Gathering Area': 1, 'Trophy Room': 1}
     REQUIRED_TEXT_CHANNELS = {}
 
     def __init__(self, ctx, bot, wanted_roles=None):
@@ -46,13 +48,11 @@ class SacredTrophyGame(Game):
             else:
                 await self.ctx.send("Game cannot start without a minimum of " + str(self.minimum_players) + " players!")
                 return False
-            valid, response = Role.Role.check_valid_roles(self.wanted_roles, self.ALL_ROLES)
+            valid, response = Role.Role.check_valid_roles(self.wanted_roles, self.ALL_ROLES, len(self.players))
             if valid:
                 await self.ctx.send("Game initialized with roles: ")
                 if len(response) != 0:
-                    await self.ctx.send(", ".join(str(p.name) for p in response))
-                else:
-                    await self.ctx.send("No special roles.")
+                    await self.ctx.send(", ".join(str(p.OFFICIAL_NAME) for p in response))
                 self.roles = response
                 return True
             else:
@@ -75,7 +75,7 @@ class SacredTrophyGame(Game):
             return False
         cat = self.get_channel_by_name(SacredTrophyGame.CATEGORY_CHANNEL_NAME)
         for role in self.guild.roles:
-            await cat.set_permissions(role, connect=False, mute_members=False, move_members=False)
+            await cat.set_permissions(role, connect=False, mute_members=False, move_members=False, read_messages=False)
         voices = Counter([s.name for s in cat.voice_channels])
         texts = Counter([s.name for s in cat.text_channels])
         for voice_chan_name in SacredTrophyGame.REQUIRED_VOICE_CHANNELS:

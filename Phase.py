@@ -86,3 +86,27 @@ class TestDiscuss(Phase):
         await super().start_timer()
         # for member in self.parent_game.players:
         #     await member.move_to(self.parent_game.get_channel_by_name("Lobby"))
+
+
+class SacredTrophyInfoPhase(Phase):
+
+    def __init__(self, parent_game):
+        super().__init__(parent_game, "Vote", "Respond \"Y\" if you think this is a good mission. Any other response"
+                                              "will be treated as NO.", 0)
+        self.votes = {}
+
+    async def begin_phase(self):
+        await super().begin_phase()
+        for member in self.parent_game.players:
+            await member.send(self.description)
+
+    async def start_timer(self):
+        while len(self.votes) < len(self.parent_game.players):
+            await asyncio.sleep(1)
+        await self.parent_game.ctx.send(f"The votes are in... {self.votes}")
+        await self.parent_game.next_phase()
+
+    async def feed_dm(self, message):
+        if message.author.name not in self.votes:
+            r = message.content.lower()
+            self.votes[message.author.name] = True if r == "y" else False

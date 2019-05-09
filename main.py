@@ -72,8 +72,11 @@ async def on_message(message):
         else:
             await globals.current_game.feed_message(message)
 
-    if message.channel.name == 'discordmystery':
-        await bot.process_commands(message)
+    try:
+        if message.channel.name == 'discordmystery':
+            await bot.process_commands(message)
+    except Exception as e:
+        print(e)
 
 
 print(TOKEN)

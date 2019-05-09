@@ -14,15 +14,15 @@ class SimpleAvalonGame(Game):
 
     minimum_players = 1
 
-    ALL_ROLES = {'merlin': lambda: Role.Merlin(),
-                 'mordred': lambda: Role.Mordred(),
-                 'oberon': lambda: Role.Oberon(),
-                 'morgana': lambda: Role.Morgana(),
-                 'percival': lambda: Role.Percival(),
-                 'loyal Servant': lambda: Role.LoyalServant(),
-                 'minion of Mordred': lambda: Role.MinionOfMordred(),
-                 'good': lambda: Role.LoyalServant(),
-                 'bad': lambda: Role.MinionOfMordred()}
+    ALL_ROLES = {'merlin': Role.Merlin,
+                 'mordred': Role.Mordred,
+                 'oberon': Role.Oberon,
+                 'morgana': Role.Morgana,
+                 'percival': Role.Percival,
+                 'loyal servant': Role.LoyalServant,
+                 'minion of mordred': Role.MinionOfMordred,
+                 'good': Role.LoyalServant,
+                 'bad': Role.MinionOfMordred}
 
     CATEGORY_CHANNEL_NAME = 'Simple Avalon Game'
     REQUIRED_VOICE_CHANNELS = {'Room': 1}
@@ -53,7 +53,7 @@ class SimpleAvalonGame(Game):
             else:
                 await self.ctx.send("Game cannot start without a minimum of " + str(self.minimum_players) + " players!")
                 return False
-            valid, response = Role.Role.check_valid_roles(self.wanted_roles, self.ALL_ROLES)
+            valid, response = Role.Role.check_valid_roles(self.wanted_roles, self.ALL_ROLES, len(self.players))
             if valid:
                 await self.ctx.send("Game initialized with roles: ")
                 if len(response) != 0:

@@ -3,9 +3,9 @@ Sacred Trophy
 B = Bad
 G = Good
 
-Nobody knows what their own identity is at the start.
+Nobody knows what their own identity is at the start. Number of good = numPlayers/2 + 1. Minimum 5 players required.
 
-Rooms:
+Rooms: Players cannot see who is in other rooms.
 	Oracle Room - 		Two players can be in the oracle room. This room reveals the identity of two other random players to each player.
 	Mirror Room - 		Two players can be in the mirror room. This room reveals your own identity.
 	Small Cave - 		Two player size, nothing special.
