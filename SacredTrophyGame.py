@@ -11,7 +11,7 @@ logging.basicConfig(level=logging.INFO)
 
 class SacredTrophyGame(Game):
 
-    minimum_players = 1
+    minimum_players = 4
 
     ALL_ROLES = {'good': Role.LightServant,
                  'bad': Role.DarkServant}
@@ -21,7 +21,7 @@ class SacredTrophyGame(Game):
                        "players can choose to touch the trophy. If  First faction to 3 wins."
 
     CATEGORY_CHANNEL_NAME = 'Sacred Trophy Game'
-    REQUIRED_VOICE_CHANNELS = {'Oracle Room': 1, 'Mirror Room': 1, 'Small Cave': 2, 'Gathering Area': 1, 'Trophy Room': 1}
+    REQUIRED_VOICE_CHANNELS = {'Oracle Room': 1, 'Mirror Room': 1, 'Small Cave': 1, 'Another Cave': 1, 'Gathering Area': 1, 'Trophy Room': 1}
     REQUIRED_TEXT_CHANNELS = {}
 
     def __init__(self, ctx, bot, wanted_roles=None):
@@ -30,7 +30,13 @@ class SacredTrophyGame(Game):
             self.wanted_roles = []
         else:
             self.wanted_roles = wanted_roles
+        self.good_points = 0
+        self.bad_points = 0
         self.add_phase(Phase.SacredTrophyInfoPhase(self))
+        # Basically, if there are more than 6 players, send 2 players to the oracle / mirror room each info round.
+        # Otherwise, send only 1.
+        self.oracle_mirror_rooms_size = 2 if len(self.players) > 6 else 1
+        self.trophy_room_size = 3 if len(self.players) > 6 else 2
 
     async def game_init(self):
         try:

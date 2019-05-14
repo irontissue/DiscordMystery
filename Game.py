@@ -88,7 +88,7 @@ class Game:
     async def next_phase(self):
         self.current_phase_idx += 1
         if self.current_phase_idx >= len(self.phases):
-            await self.ctx.send("Game is over haha lol")
+            await self.ctx.send("The game is over.")
             globals.current_game = None
         else:
             await self.phases[self.current_phase_idx].begin_phase()
