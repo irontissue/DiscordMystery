@@ -17,6 +17,7 @@ class Game:
         self.bot = bot
         self.ctx = ctx
         self.phases = []
+        self.roles = []
         self.current_phase_idx = 0
         self.guild = self.bot.get_guild(self.ctx.guild.id)
         lobby = self.get_channel_by_name('Lobby')
@@ -37,17 +38,36 @@ class Game:
             else:
                 await self.ctx.send("Game cannot start without a minimum of " + str(self.minimum_players) + " players!")
                 return False
-        except:
+        except Exception as e:
+            print(f"Exception in Game.game_init: {e}")
             return False
 
     async def start_game(self):
         await self.phases[self.current_phase_idx].begin_phase()
+
+    def get_member_by_name(self, name):
+        for member in self.players:
+            if member.name == name:
+                return member
+        return None
 
     # Returns channel given the name.
     def get_channel_by_name(self, name):
         for channel in self.guild.channels:
             if channel.name == name:
                 return channel
+        return None
+
+    def get_role_by_member(self, member):
+        for role in self.roles:
+            if role.member == member:
+                return role
+        return None
+
+    def get_role_by_member_name(self, name):
+        for role in self.roles:
+            if role.member.name == name:
+                return role
         return None
 
     # Returns channel given the name, from given category channel.

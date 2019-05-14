@@ -65,7 +65,8 @@ class SimpleAvalonGame(Game):
             else:
                 await self.ctx.send(response)
                 return False
-        except:
+        except Exception as e:
+            print(f"Exception in SimpleAvalonGame.game_init: {e}")
             return False
 
     async def start_game(self):

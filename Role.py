@@ -85,7 +85,7 @@ class Role:
                                "\" can't be in the game!"
             return True, true_roles
         except Exception as e:
-            print(e)
+            print(f"Exception in Role.check_valid_roles: {e}")
             return False, str(e)
 
     def __eq__(self, other):
@@ -94,7 +94,7 @@ class Role:
         return False
 
     def __str__(self):
-        return self.name
+        return f"{self.name}: {self.member}"
 
 
 class LoyalServant(Role):

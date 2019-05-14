@@ -4,6 +4,7 @@ import Phase
 from Game import Game
 import discord
 from collections import Counter
+import random
 
 logging.basicConfig(level=logging.INFO)
 
@@ -29,10 +30,7 @@ class SacredTrophyGame(Game):
             self.wanted_roles = []
         else:
             self.wanted_roles = wanted_roles
-        self.roles = []
-        self.add_phase(Phase.TestDiscuss(self))
-        self.add_phase(Phase.AvalonVotePhase(self))
-        self.add_phase(Phase.TestDiscuss(self))
+        self.add_phase(Phase.SacredTrophyInfoPhase(self))
 
     async def game_init(self):
         try:
@@ -49,16 +47,29 @@ class SacredTrophyGame(Game):
                 await self.ctx.send("Game cannot start without a minimum of " + str(self.minimum_players) + " players!")
                 return False
             valid, response = Role.Role.check_valid_roles(self.wanted_roles, self.ALL_ROLES, len(self.players))
+            if len(self.wanted_roles) == 0:
+                valid = True
+                response = []
+                num_good = len(self.players) // 2 + 1
+                num_bad = len(self.players) - num_good
+                response.extend([Role.LightServant] * num_good)
+                response.extend([Role.DarkServant] * num_bad)
             if valid:
                 await self.ctx.send("Game initialized with roles: ")
                 if len(response) != 0:
                     await self.ctx.send(", ".join(str(p.OFFICIAL_NAME) for p in response))
-                self.roles = response
+                    players_copy = self.players[:]
+                    random.shuffle(players_copy)
+                    idx = 0
+                    for role in response:
+                        self.roles.append(role(players_copy[idx]))
+                        idx += 1
                 return True
             else:
                 await self.ctx.send(response)
                 return False
-        except:
+        except Exception as e:
+            print(f"Exception in SacredTrophyGame.game_init: {e}")
             return False
 
     async def start_game(self):

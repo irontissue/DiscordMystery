@@ -76,7 +76,7 @@ async def on_message(message):
         if message.channel.name == 'discordmystery':
             await bot.process_commands(message)
     except Exception as e:
-        print(e)
+        print(f"Exception in main.on_message: {e}")
 
 
 print(TOKEN)
