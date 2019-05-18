@@ -91,8 +91,9 @@ class Game:
         self.phases.append(phase)
 
     async def next_phase(self):
+        print(f"Next phase called, phases = {self.phases}")
         self.current_phase_idx += 1
-        await asyncio.sleep(2)
+        await asyncio.sleep(5)
         if self.current_phase_idx >= len(self.phases):
             await self.ctx.send("The game is over.")
             globals.current_game = None

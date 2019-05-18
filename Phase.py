@@ -106,8 +106,10 @@ class SacredTrophyInfoPhase(Phase):
         await super().begin_phase()
         rand_idxs = random.sample(list(range(len(self.parent_game.roles))), self.parent_game.oracle_mirror_rooms_size * 2)
         to_oracle = 0
+        self.parent_game.phases.append(SacredTrophyGatheringPhase(self.parent_game))
         for rand in rand_idxs:
             if to_oracle < len(rand_idxs) // 2:
+                print(f"Moving {self.parent_game.roles[rand].member} to Oracle Room")
                 await self.parent_game.roles[rand].member.move_to(self.parent_game.get_channel_by_name("Oracle Room"))
                 rest = list(range(len(self.parent_game.roles)))
                 rest.remove(rand)
@@ -115,11 +117,11 @@ class SacredTrophyInfoPhase(Phase):
                 for aa in rand_knowledge:
                     await self.parent_game.roles[rand].member.send(f"The oracle reveals to you that {self.parent_game.roles[aa].member.name} is a {self.parent_game.roles[aa].name}.")
             else:
+                print(f"Moving {self.parent_game.roles[rand].member} to Mirror Room")
                 await self.parent_game.roles[rand].member.move_to(self.parent_game.get_channel_by_name("Mirror Room"))
                 await self.parent_game.roles[rand].member.send(f"As you peer into the mirror, you learn your true "
                                                                f"identity: {self.parent_game.roles[rand].name}.")
             to_oracle += 1
-        self.parent_game.phases.append(SacredTrophyGatheringPhase(self.parent_game))
 
     async def start_timer(self):
         await super().start_timer()
@@ -136,9 +138,9 @@ class SacredTrophyGatheringPhase(Phase):
         self.votes = dict()
         self.voted_people = set()
         self.timed_out = True
+        self.went_to_trophy = False
         for member in self.parent_game.players:
             self.votes[member] = 0
-        print(f"VOTES DICT GATHERING PHASE: {self.votes}")
 
     async def begin_phase(self):
         await super().begin_phase()
@@ -148,16 +150,14 @@ class SacredTrophyGatheringPhase(Phase):
             await member.send(self.description)
 
     async def start_timer(self):
-        broke = False
         while self.duration <= 0 or self.current_time < self.duration:
             if self.phase_over:
-                broke = True
                 break
             self.current_time += 1
             await asyncio.sleep(1)
         self.current_time = 0
         self.phase_over = False
-        if not broke:
+        if not self.went_to_trophy:
             self.parent_game.phases.append(SacredTrophyCavePhase(self.parent_game))
         if self.phase_number is None:
             await self.parent_game.ctx.send("Phase \"" + self.name + "\" is over!")
@@ -166,19 +166,30 @@ class SacredTrophyGatheringPhase(Phase):
         await self.parent_game.next_phase()
 
     async def feed_dm(self, message):
+        print(f"Phase {self.name} received message from user {message.author}: {message.content}")
         try:
             if message.author not in self.voted_people:
                 self.voted_people.add(message.author)
                 splitty = message.content.lower().split(',')
+                for i in range(len(splitty)):
+                    splitty[i] = splitty[i].strip()
+                if len(splitty) != len(set(splitty)):
+                    print(f"User {message.author} sent duplicate members in votes.")
+                    await self.parent_game.ctx.send(
+                            f"{message.author.name} doesn't want to send anyone to the Trophy Room."
+                            f" End of Gathering Phase.")
+                    self.phase_over = True
+                    self.timed_out = False
+                    return
                 for i in range(self.parent_game.trophy_room_size):
-                    split = self.parent_game.get_member_by_name(splitty[i].strip())
+                    split = self.parent_game.get_member_by_name(splitty[i])
                     if split not in self.votes:
                         await self.parent_game.ctx.send(
                             f"{message.author.name} doesn't want to send anyone to the Trophy Room."
                             f" End of Gathering Phase.")
                         self.phase_over = True
                         self.timed_out = False
-                        self.parent_game.phases.append(SacredTrophyCavePhase(self.parent_game))
+                        return
                     else:
                         self.votes[split] += 1
             if len(self.voted_people) == len(self.parent_game.players):
@@ -189,13 +200,14 @@ class SacredTrophyGatheringPhase(Phase):
                 self.parent_game.phases.append(SacredTrophyTrophyPhase(self.parent_game, [ss[0] for ss in counted[:self.parent_game.trophy_room_size]]))
                 self.phase_over = True
                 self.timed_out = False
+                self.went_to_trophy = True
+                return
         except Exception as e:
             print(f"Exception in SacredTrophyGatheringPhase.feed_dm(): {e}")
             self.phase_over = True
             self.timed_out = False
             await self.parent_game.ctx.send(f"{message.author.name} doesn't want to send anyone to the Trophy Room."
                                             f"End of Gathering Phase.")
-            self.parent_game.phases.append(SacredTrophyCavePhase(self.parent_game))
 
 
 class SacredTrophyCavePhase(Phase):
@@ -239,29 +251,35 @@ class SacredTrophyTrophyPhase(Phase):
         if message.author in self.trophy_room_people and message.author not in self.voted:
             self.voted.add(message.author)
             if "".join(message.content.lower().split()) == "touch":
+                print(f"{message.author} typed TOUCH. Type of this player: {type(self.parent_game.get_role_by_member(message.author))}")
                 if type(self.parent_game.get_role_by_member(message.author)) == Role.LightServant:
                     self.touched.add(1)
                 else:
                     self.touched.add(2)
-            if len(self.voted) == 3:
+            if len(self.voted) == self.parent_game.trophy_room_size:
                 game_over = False
                 if not self.touched:
-                    self.parent_game.ctx.send(f"Nobody touched the trophy! Nothing happens... The score is still "
+                    await self.parent_game.ctx.send(f"Nobody touched the trophy! Nothing happens... The score is still "
                                               f"\nLight: {self.parent_game.good_points}, Dark: "
                                               f"{self.parent_game.bad_points}")
                 elif 2 in self.touched:
                     self.parent_game.bad_points += 1
-                    self.parent_game.ctx.send(f"The trophy emits a dark aura! Score: \nLight: "
+                    await self.parent_game.ctx.send(f"The trophy emits a dark aura! Score: \nLight: "
                                               f"{self.parent_game.good_points}, Dark:{self.parent_game.bad_points}")
                     if self.parent_game.bad_points == 3:
                         game_over = True
-                        self.parent_game.ctx.send(f"The world is shrouded in shadows; the Dark has won!")
+                        await self.parent_game.ctx.send(f"The world is shrouded in shadows; the Dark has won!")
                 else:
                     self.parent_game.good_points += 1
-                    self.parent_game.ctx.send(f"The trophy glimmers momentarily with light! Score: \nLight: "
+                    await self.parent_game.ctx.send(f"The trophy glimmers momentarily with light! Score: \nLight: "
                                               f"{self.parent_game.good_points}, Dark:{self.parent_game.bad_points}")
                     if self.parent_game.good_points == 3:
                         game_over = True
-                        self.parent_game.ctx.send(f"A heavenly ray shines from above; the Light has won!")
+                        await self.parent_game.ctx.send(f"A heavenly ray shines from above; the Light has won!")
                 if not game_over:
                     self.parent_game.phases.append(SacredTrophyGatheringPhase(self.parent_game))
+                    self.phase_over = True
+                else:
+                    lobby = self.parent_game.get_channel_by_name("Lobby")
+                    for member in self.parent_game.players:
+                        member.move_to(lobby)

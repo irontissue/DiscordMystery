@@ -66,7 +66,7 @@ async def on_message(message):
     if message.author == bot.user:
         return
 
-    if globals.current_game is not None:
+    if globals.current_game is not None and message.author in globals.current_game.players:
         if isinstance(message.channel, discord.DMChannel):
             await globals.current_game.feed_dm(message)
         else:
