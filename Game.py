@@ -46,15 +46,19 @@ class Game:
         await self.phases[self.current_phase_idx].begin_phase()
 
     def get_member_by_name(self, name):
-        for member in self.players:
-            if member.name == name:
-                return member
-        return None
+        try:
+            for member in self.players:
+                if member.name.lower() == name.lower():
+                    return member
+            return None
+        except Exception as e:
+            print(e)
+            return None
 
     # Returns channel given the name.
     def get_channel_by_name(self, name):
         for channel in self.guild.channels:
-            if channel.name == name:
+            if channel.name.lower() == name.lower():
                 return channel
         return None
 
@@ -66,7 +70,7 @@ class Game:
 
     def get_role_by_member_name(self, name):
         for role in self.roles:
-            if role.member.name == name:
+            if role.member.name.lower() == name.lower():
                 return role
         return None
 
@@ -76,7 +80,7 @@ class Game:
         if type(cat) != discord.channel.CategoryChannel:
             print(f"ERROR: get_channel_from_category was incorrectly given a {type(cat)} as input.")
         for channel in cat.channels:
-            if channel.name == name:
+            if channel.name.lower() == name.lower():
                 return channel
         return None
 

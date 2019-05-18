@@ -26,6 +26,10 @@ class SacredTrophyGame(Game):
 
     def __init__(self, ctx, bot, wanted_roles=None):
         super().__init__(ctx, bot, wanted_roles)
+        # Basically, if there are more than 6 players, send 2 players to the oracle / mirror room each info round.
+        # Otherwise, send only 1.
+        self.oracle_mirror_rooms_size = 2 if len(self.players) > 6 else 1
+        self.trophy_room_size = 3 if len(self.players) > 6 else 2
         if wanted_roles is None:
             self.wanted_roles = []
         else:
@@ -33,10 +37,6 @@ class SacredTrophyGame(Game):
         self.good_points = 0
         self.bad_points = 0
         self.add_phase(Phase.SacredTrophyInfoPhase(self))
-        # Basically, if there are more than 6 players, send 2 players to the oracle / mirror room each info round.
-        # Otherwise, send only 1.
-        self.oracle_mirror_rooms_size = 2 if len(self.players) > 6 else 1
-        self.trophy_room_size = 3 if len(self.players) > 6 else 2
 
     async def game_init(self):
         try:
@@ -70,6 +70,9 @@ class SacredTrophyGame(Game):
                     for role in response:
                         self.roles.append(role(players_copy[idx]))
                         idx += 1
+                gathering = self.get_channel_by_name("Gathering Area")
+                for member in self.players:
+                    await member.move_to(gathering)
                 return True
             else:
                 await self.ctx.send(response)
