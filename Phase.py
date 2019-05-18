@@ -52,20 +52,17 @@ class AvalonVotePhase(Phase):
         await super().begin_phase()
         for member in self.parent_game.players:
             await member.send(self.description)
-        await asyncio.sleep(2)
 
     async def start_timer(self):
         while len(self.votes) < len(self.parent_game.players):
             await asyncio.sleep(1)
         await self.parent_game.ctx.send(f"The votes are in... {self.votes}")
         await self.parent_game.next_phase()
-        await asyncio.sleep(2)
 
     async def feed_dm(self, message):
         if message.author.name not in self.votes:
             r = message.content.lower()
             self.votes[message.author.name] = True if r == "y" else False
-        await asyncio.sleep(2)
 
 
 class FiveMinuteDiscuss(Phase):
@@ -73,14 +70,12 @@ class FiveMinuteDiscuss(Phase):
     def __init__(self, parent_game):
         super().__init__(parent_game, "Five Minute Discussion", "Discuss the state of the game for 5 minutes,"
                                                                 "then the next phase begins.", 300)
-        await asyncio.sleep(2)
 
 
 class TestDiscuss(Phase):
 
     def __init__(self, parent_game):
         super().__init__(parent_game, "Test 20 Second Phase", "Test", 20)
-        await asyncio.sleep(2)
 
     async def begin_phase(self):
         await super().begin_phase()
@@ -89,13 +84,11 @@ class TestDiscuss(Phase):
         #     randVC = randint(1, len(guild.voice_channels) - 1)
         #     await self.parent_game.ctx.send(f"Moving {member.name} to {guild.voice_channels[randVC]}.")
         #     await member.move_to(self.parent_game.get_channel_by_name(str(guild.voice_channels[randVC])))
-        await asyncio.sleep(2)
 
     async def start_timer(self):
         await super().start_timer()
         # for member in self.parent_game.players:
         #     await member.move_to(self.parent_game.get_channel_by_name("Lobby"))
-        await asyncio.sleep(2)
 
 
 class SacredTrophyInfoPhase(Phase):
@@ -108,7 +101,6 @@ class SacredTrophyInfoPhase(Phase):
             super().__init__(parent_game, "Info Phase", f"{parent_game.oracle_mirror_rooms_size} players have been sent"
                                                         f" to the Oracle Room. {parent_game.oracle_mirror_rooms_size} "
                                                         f"have been sent to the Mirror Room.", 30)
-        await asyncio.sleep(2)
 
     async def begin_phase(self):
         await super().begin_phase()
@@ -127,11 +119,10 @@ class SacredTrophyInfoPhase(Phase):
                 await self.parent_game.roles[rand].member.send(f"As you peer into the mirror, you learn your true "
                                                                f"identity: {self.parent_game.roles[rand].name}.")
             to_oracle += 1
-        await asyncio.sleep(2)
 
     async def start_timer(self):
         await super().start_timer()
-        await asyncio.sleep(2)
+
 
 class SacredTrophyGatheringPhase(Phase):
 
@@ -145,7 +136,6 @@ class SacredTrophyGatheringPhase(Phase):
         self.voted_people = set()
         for member in self.parent_game.players:
             self.votes[member] = 0
-        await asyncio.sleep(2)
 
     async def begin_phase(self):
         await super().begin_phase()
@@ -153,11 +143,9 @@ class SacredTrophyGatheringPhase(Phase):
         for member in self.parent_game.players:
             await member.move_to(gathering)
             await member.send(self.description)
-        await asyncio.sleep(2)
 
     async def start_timer(self):
         await super().start_timer()
-        await asyncio.sleep(2)
 
     async def feed_dm(self, message):
         try:
@@ -187,7 +175,6 @@ class SacredTrophyGatheringPhase(Phase):
             await self.parent_game.ctx.send(f"{message.author.name} doesn't want to send anyone to the Trophy Room."
                                             f"End of Gathering Phase.")
             self.parent_game.phases.append(SacredTrophyCavePhase(self.parent_game))
-        await asyncio.sleep(2)
 
 
 class SacredTrophyCavePhase(Phase):
@@ -195,7 +182,6 @@ class SacredTrophyCavePhase(Phase):
     def __init__(self, parent_game):
         super().__init__(parent_game, "Cave Phase", "Two players have been sent to each cave. You have 2 minutes to "
                                                     "discuss.", 120)
-        await asyncio.sleep(2)
 
     async def begin_phase(self):
         await super().begin_phase()
@@ -208,7 +194,6 @@ class SacredTrophyCavePhase(Phase):
                 await self.parent_game.roles[rand].member.move_to(self.parent_game.get_channel_by_name("Another Cave"))
             to_cave1 += 1
         self.parent_game.phases.append(SacredTrophyGatheringPhase(self.parent_game))
-        await asyncio.sleep(2)
 
 
 class SacredTrophyTrophyPhase(Phase):
@@ -228,7 +213,6 @@ class SacredTrophyTrophyPhase(Phase):
             await p.move_to(trophy_room)
             await p.send("Respond \"touch\" (without quotes) if you want to touch the trophy. Any other response"
                          "means you don't touch it.")
-        await asyncio.sleep(2)
 
     async def feed_dm(self, message):
         if message.author in self.trophy_room_people and message.author not in self.voted:
@@ -260,4 +244,3 @@ class SacredTrophyTrophyPhase(Phase):
                         self.parent_game.ctx.send(f"A heavenly ray shines from above; the Light has won!")
                 if not game_over:
                     self.parent_game.phases.append(SacredTrophyGatheringPhase(self.parent_game))
-        await asyncio.sleep(2)
