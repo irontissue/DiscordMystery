@@ -132,8 +132,8 @@ class SacredTrophyGatheringPhase(Phase):
     def __init__(self, parent_game):
         super().__init__(parent_game, "Gathering Phase", f"You have 5 minutes to vote for "
                                                          f"{parent_game.trophy_room_size} people who you would want "
-                                                         f"to go to the trophy room. Send a list of {parent_game.trophy_room_size} people "
-                                                         f"(separated by commas). An invalid response will be treated as"
+                                                         f"to go to the trophy room. Send a list of {parent_game.trophy_room_size} numbers "
+                                                         f"(separated by spaces). An invalid response will be treated as"
                                                          f" \"pass\".", 20)
         self.votes = dict()
         self.voted_people = set()
@@ -141,6 +141,7 @@ class SacredTrophyGatheringPhase(Phase):
         self.went_to_trophy = False
         for member in self.parent_game.players:
             self.votes[member] = 0
+        self.just_names = [s.name for s in self.parent_game.players]
 
     async def begin_phase(self):
         await super().begin_phase()
@@ -148,6 +149,8 @@ class SacredTrophyGatheringPhase(Phase):
         for member in self.parent_game.players:
             await member.move_to(gathering)
             await member.send(self.description)
+            for idx in range(len(self.just_names)):
+                await member.send(f"{idx} = {self.just_names[idx]}")
 
     async def start_timer(self):
         while self.duration <= 0 or self.current_time < self.duration:
@@ -170,20 +173,17 @@ class SacredTrophyGatheringPhase(Phase):
         try:
             if message.author not in self.voted_people:
                 self.voted_people.add(message.author)
-                splitty = message.content.lower().split(',')
-                for i in range(len(splitty)):
-                    splitty[i] = splitty[i].strip()
+                splitty = [self.parent_game.players[int(s.strip())] for s in message.content.lower().split()]
                 if len(splitty) != len(set(splitty)):
                     print(f"User {message.author} sent duplicate members in votes.")
                     await self.parent_game.ctx.send(
-                            f"{message.author.name} doesn't want to send anyone to the Trophy Room."
+                            f"{message.author.name} tried to send duplicates to the Trophy Room."
                             f" End of Gathering Phase.")
                     self.phase_over = True
                     self.timed_out = False
                     return
                 for i in range(self.parent_game.trophy_room_size):
-                    split = self.parent_game.get_member_by_name(splitty[i])
-                    if split not in self.votes:
+                    if splitty[i] not in self.votes:
                         await self.parent_game.ctx.send(
                             f"{message.author.name} doesn't want to send anyone to the Trophy Room."
                             f" End of Gathering Phase.")
@@ -191,7 +191,7 @@ class SacredTrophyGatheringPhase(Phase):
                         self.timed_out = False
                         return
                     else:
-                        self.votes[split] += 1
+                        self.votes[splitty[i]] += 1
             if len(self.voted_people) == len(self.parent_game.players):
                 await self.parent_game.ctx.send(f"The votes are in...")
                 counted = Counter(self.votes).most_common()
