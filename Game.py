@@ -3,6 +3,7 @@ import Role
 import logging
 import globals
 import discord
+import asyncio
 
 logging.basicConfig(level=logging.INFO)
 
@@ -91,6 +92,7 @@ class Game:
 
     async def next_phase(self):
         self.current_phase_idx += 1
+        await asyncio.sleep(2)
         if self.current_phase_idx >= len(self.phases):
             await self.ctx.send("The game is over.")
             globals.current_game = None
