@@ -16,11 +16,13 @@ Rooms: Players cannot see who is in other rooms.
 						(Should the aftermath let the group know how many people touched the trophy?)
 
 Phases:
-	Info Phase:			4 people get randomly put into Oracle and Mirror Rooms. Everyone else chills in Gathering Area. Duration: 30 sec
+	Info Phase:			4 people get randomly put into Oracle and Mirror Rooms. Everyone else chills in Gathering Area. Duration: 20 sec
 	Gathering Phase:	Everyone goes back to Gathering Area. Before phase ends, players can vote to either send 3 people of their choice to the Trophy Room in the next phase, or decline to answer. If EVERYONE provides a list of 3,
-						then the next phase will be a Trophy phase. Otherwise, it goes to Cave Phase. Duration: 5 min, or when everyone finishes voting
-    Cave Phase:         Just like Info Phase, except 4 randomly go to Small Caves while everyone else remains in Gathering Area. Return to Gathering Phase after. Duration: 2 min
+						then the next phase will be a Trophy phase. Otherwise, it goes to Cave Phase. Duration: 3 min, or when everyone finishes voting
+    Cave Phase:         Just like Info Phase, except 4 randomly go to Small Caves while everyone else remains in Gathering Area. Return to Gathering Phase after. Duration: 1 min
 	Trophy Phase: 		The 3 most popular votes for people go to the Trophy Room and can touch the trophy if they want. If ANY B touches the trophy, the round result is B. The phase after Trophy Phase will always be
 						a Gathering Phase. Duration: 1 min after trophy has been touched.
 
 NOTE: If there are less than 7 players, then the number of people that go to the oracle / mirror rooms is instead 1. The trophy room instead requires 2 votes.
+
+First team to 7 wins.

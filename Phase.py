@@ -1,6 +1,7 @@
 import asyncio
 import random
 import globals
+from SacredTrophyGame import SacredTrophyGame
 from collections import Counter
 import Role
 
@@ -96,11 +97,11 @@ class SacredTrophyInfoPhase(Phase):
     def __init__(self, parent_game):
         if parent_game.oracle_mirror_rooms_size == 1:
             super().__init__(parent_game, "Info Phase", "One player has been sent to the Oracle Room. One has been"
-                                                        " sent to the Mirror Room.", 5)
+                                                        " sent to the Mirror Room.", 20)
         else:
             super().__init__(parent_game, "Info Phase", f"{parent_game.oracle_mirror_rooms_size} players have been sent"
                                                         f" to the Oracle Room. {parent_game.oracle_mirror_rooms_size} "
-                                                        f"have been sent to the Mirror Room.", 5)
+                                                        f"have been sent to the Mirror Room.", 20)
 
     async def begin_phase(self):
         await super().begin_phase()
@@ -134,7 +135,7 @@ class SacredTrophyGatheringPhase(Phase):
                                                          f"{parent_game.trophy_room_size} people who you would want "
                                                          f"to go to the trophy room. Send a list of {parent_game.trophy_room_size} numbers "
                                                          f"(separated by spaces). An invalid response will be treated as"
-                                                         f" \"pass\".", 30)
+                                                         f" \"pass\".", 180)
         self.votes = dict()
         self.voted_people = set()
         self.timed_out = True
@@ -145,13 +146,13 @@ class SacredTrophyGatheringPhase(Phase):
 
     async def begin_phase(self):
         members = ""
+        members += self.description + "\n"
+        for idx in range(len(self.just_names)):
+            members += f"{idx + 1} = {self.just_names[idx]}\n"
         await super().begin_phase()
         gathering = self.parent_game.get_channel_by_name("Gathering Area")
         for member in self.parent_game.players:
             await member.move_to(gathering)
-            await member.send(self.description)
-            for idx in range(len(self.just_names)):
-                members += f"{idx + 1} = {self.just_names[idx]}\n"
             await member.send(members)
 
     async def start_timer(self):
@@ -216,7 +217,7 @@ class SacredTrophyCavePhase(Phase):
 
     def __init__(self, parent_game):
         super().__init__(parent_game, "Cave Phase", "Two players have been sent to each cave. You have 2 minutes to "
-                                                    "discuss.", 10)
+                                                    "discuss.", 60)
 
     async def begin_phase(self):
         await super().begin_phase()
@@ -268,14 +269,14 @@ class SacredTrophyTrophyPhase(Phase):
                     self.parent_game.bad_points += 1
                     await self.parent_game.ctx.send(f"The trophy emits a dark aura! Score: \nLight: "
                                               f"{self.parent_game.good_points}, Dark:{self.parent_game.bad_points}")
-                    if self.parent_game.bad_points == 3:
+                    if self.parent_game.bad_points == SacredTrophyGame.POINTS_TO_WIN:
                         game_over = True
                         await self.parent_game.ctx.send(f"The world is shrouded in shadows; the Dark has won!")
                 else:
                     self.parent_game.good_points += 1
                     await self.parent_game.ctx.send(f"The trophy glimmers momentarily with light! Score: \nLight: "
                                               f"{self.parent_game.good_points}, Dark:{self.parent_game.bad_points}")
-                    if self.parent_game.good_points == 3:
+                    if self.parent_game.good_points == SacredTrophyGame.POINTS_TO_WIN:
                         game_over = True
                         await self.parent_game.ctx.send(f"A heavenly ray shines from above; the Light has won!")
                 if not game_over:

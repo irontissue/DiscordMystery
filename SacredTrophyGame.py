@@ -24,6 +24,8 @@ class SacredTrophyGame(Game):
     REQUIRED_VOICE_CHANNELS = {'Oracle Room': 1, 'Mirror Room': 1, 'Small Cave': 1, 'Another Cave': 1, 'Gathering Area': 1, 'Trophy Room': 1}
     REQUIRED_TEXT_CHANNELS = {}
 
+    POINTS_TO_WIN = 7
+
     def __init__(self, ctx, bot, wanted_roles=None):
         super().__init__(ctx, bot, wanted_roles)
         # Basically, if there are more than 6 players, send 2 players to the oracle / mirror room each info round.
