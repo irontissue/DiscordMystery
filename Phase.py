@@ -134,7 +134,7 @@ class SacredTrophyGatheringPhase(Phase):
                                                          f"{parent_game.trophy_room_size} people who you would want "
                                                          f"to go to the trophy room. Send a list of {parent_game.trophy_room_size} numbers "
                                                          f"(separated by spaces). An invalid response will be treated as"
-                                                         f" \"pass\".", 20)
+                                                         f" \"pass\".", 30)
         self.votes = dict()
         self.voted_people = set()
         self.timed_out = True
@@ -144,13 +144,15 @@ class SacredTrophyGatheringPhase(Phase):
         self.just_names = [s.name for s in self.parent_game.players]
 
     async def begin_phase(self):
+        members = ""
         await super().begin_phase()
         gathering = self.parent_game.get_channel_by_name("Gathering Area")
         for member in self.parent_game.players:
             await member.move_to(gathering)
             await member.send(self.description)
             for idx in range(len(self.just_names)):
-                await member.send(f"{idx} = {self.just_names[idx]}")
+                members += f"{idx + 1} = {self.just_names[idx]}\n"
+            await member.send(members)
 
     async def start_timer(self):
         while self.duration <= 0 or self.current_time < self.duration:
@@ -173,7 +175,7 @@ class SacredTrophyGatheringPhase(Phase):
         try:
             if message.author not in self.voted_people:
                 self.voted_people.add(message.author)
-                splitty = [self.parent_game.players[int(s.strip())] for s in message.content.lower().split()]
+                splitty = [self.parent_game.players[int(s.strip()) - 1] for s in message.content.lower().split()]
                 if len(splitty) != len(set(splitty)):
                     print(f"User {message.author} sent duplicate members in votes.")
                     await self.parent_game.ctx.send(
@@ -245,7 +247,7 @@ class SacredTrophyTrophyPhase(Phase):
         for p in self.trophy_room_people:
             await p.move_to(trophy_room)
             await p.send("Respond \"touch\" (without quotes) if you want to touch the trophy. Any other response"
-                         "means you don't touch it.")
+                         " means you don't touch it.")
 
     async def feed_dm(self, message):
         if message.author in self.trophy_room_people and message.author not in self.voted:
