@@ -131,7 +131,7 @@ class SacredTrophyInfoPhase(Phase):
 class SacredTrophyGatheringPhase(Phase):
 
     def __init__(self, parent_game):
-        super().__init__(parent_game, "Gathering Phase", f"You have 5 minutes to vote for "
+        super().__init__(parent_game, "Gathering Phase", f"You have 3 minutes to vote for "
                                                          f"{parent_game.trophy_room_size} people who you would want "
                                                          f"to go to the trophy room. Send a list of {parent_game.trophy_room_size} numbers "
                                                          f"(separated by spaces). An invalid response will be treated as"
@@ -151,9 +151,11 @@ class SacredTrophyGatheringPhase(Phase):
             members += f"{idx + 1} = {self.just_names[idx]}\n"
         await super().begin_phase()
         gathering = self.parent_game.get_channel_by_name("Gathering Area")
-        for member in self.parent_game.players:
+        print(self.votes)
+        for member in self.votes:
             await member.move_to(gathering)
             await member.send(members)
+            print(f"Sending members list to {member}")
 
     async def start_timer(self):
         while self.duration <= 0 or self.current_time < self.duration:
@@ -280,7 +282,7 @@ class SacredTrophyTrophyPhase(Phase):
                         game_over = True
                         await self.parent_game.ctx.send(f"A heavenly ray shines from above; the Light has won!")
                 if not game_over:
-                    self.parent_game.phases.append(SacredTrophyGatheringPhase(self.parent_game))
+                    self.parent_game.phases.append(SacredTrophyInfoPhase(self.parent_game))
                     self.phase_over = True
                 else:
                     lobby = self.parent_game.get_channel_by_name("Lobby")
