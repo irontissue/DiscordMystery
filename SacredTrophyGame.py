@@ -11,7 +11,7 @@ logging.basicConfig(level=logging.INFO)
 
 class SacredTrophyGame(Game):
 
-    minimum_players = 4
+    minimum_players = 6
 
     ALL_ROLES = {'good': Role.LightServant,
                  'bad': Role.DarkServant}
@@ -30,8 +30,8 @@ class SacredTrophyGame(Game):
         super().__init__(ctx, bot, wanted_roles)
         # Basically, if there are more than 6 players, send 2 players to the oracle / mirror room each info round.
         # Otherwise, send only 1.
-        self.oracle_mirror_rooms_size = 2 if len(self.players) > 6 else 1
-        self.trophy_room_size = 3 if len(self.players) > 6 else 2
+        self.oracle_mirror_rooms_size = 2 if len(self.players) > 5 else 1
+        self.trophy_room_size = 3 if len(self.players) > 5 else 2
         if wanted_roles is None:
             self.wanted_roles = []
         else:
