@@ -55,7 +55,7 @@ async def sacred_trophy(ctx, starting_room):
                 globals.current_game = None
     except Exception as e:
         print(e)
-        await ctx.send("Usage: \"sacred_trophy <starting room>\"")
+        await ctx.send("Usage: sacred_trophy \"<starting room>\"")
 
 
 @bot.command()
