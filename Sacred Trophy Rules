@@ -3,7 +3,7 @@ Sacred Trophy
 B = Bad
 G = Good
 
-Nobody knows what their own identity is at the start. Number of good = numPlayers/2 + 1. Minimum 4 players required.
+Nobody knows what their own identity is at the start. Number of good = numPlayers/2 + 1. Minimum 6 players required.
 
 Rooms: Players cannot see who is in other rooms.
 	Oracle Room - 		Two players can be in the oracle room. This room reveals the identity of two other random players to each player.
@@ -22,7 +22,5 @@ Phases:
     Cave Phase:         Just like Info Phase, except 4 randomly go to Small Caves while everyone else remains in Gathering Area. Return to Gathering Phase after. Duration: 1 min
 	Trophy Phase: 		The 3 most popular votes for people go to the Trophy Room and can touch the trophy if they want. If ANY B touches the trophy, the round result is B. The phase after Trophy Phase will always be
 						a Gathering Phase. Duration: 1 min after trophy has been touched.
-
-NOTE: If there are less than 7 players, then the number of people that go to the oracle / mirror rooms is instead 1. The trophy room instead requires 2 votes.
 
 First team to 7 wins.
