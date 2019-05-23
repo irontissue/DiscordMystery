@@ -28,8 +28,8 @@ class SimpleAvalonGame(Game):
     REQUIRED_VOICE_CHANNELS = {'Room': 1}
     REQUIRED_TEXT_CHANNELS = {'general': 1}
 
-    def __init__(self, ctx, bot, wanted_roles=None):
-        super().__init__(ctx, bot, wanted_roles)
+    def __init__(self, ctx, bot, starting_room, wanted_roles=None):
+        super().__init__(ctx, bot, starting_room, wanted_roles)
         if wanted_roles is None:
             self.wanted_roles = []
         else:

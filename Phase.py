@@ -89,7 +89,7 @@ class TestDiscuss(Phase):
     async def start_timer(self):
         await super().start_timer()
         # for member in self.parent_game.players:
-        #     await member.move_to(self.parent_game.get_channel_by_name("Lobby"))
+        #     await member.move_to(self.parent_game.starting_room)
 
 
 class SacredTrophyInfoPhase(Phase):
@@ -285,6 +285,5 @@ class SacredTrophyTrophyPhase(Phase):
                     self.parent_game.phases.append(SacredTrophyInfoPhase(self.parent_game))
                     self.phase_over = True
                 else:
-                    lobby = self.parent_game.get_channel_by_name("Lobby")
                     for member in self.parent_game.players:
-                        member.move_to(lobby)
+                        member.move_to(self.parent_game.starting_room)

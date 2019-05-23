@@ -14,15 +14,19 @@ class Game:
 
     HELP_DESCRIPTION = "Test Game."
 
-    def __init__(self, ctx, bot, wanted_roles):
+    def __init__(self, ctx, bot, starting_room, wanted_roles=None):
         self.bot = bot
         self.ctx = ctx
         self.phases = []
         self.roles = []
+        if wanted_roles is None:
+            self.wanted_roles =  []
+        else:
+            self.wanted_roles = wanted_roles
         self.current_phase_idx = 0
         self.guild = self.bot.get_guild(self.ctx.guild.id)
-        lobby = self.get_channel_by_name('Lobby')
-        self.players = lobby.members
+        self.starting_room = starting_room
+        self.players = starting_room.members
 
     async def game_init(self):
         try:
