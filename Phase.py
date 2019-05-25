@@ -114,7 +114,7 @@ class SacredTrophyInfoPhase(Phase):
                 await self.parent_game.roles[rand].member.move_to(self.parent_game.get_channel_by_name("Oracle Room"))
                 rest = list(range(len(self.parent_game.roles)))
                 rest.remove(rand)
-                rand_knowledge = random.sample(rest, len(rand_idxs) // 2)
+                rand_knowledge = random.sample(rest, 1) # len(rand_idxs) // 2)
                 for aa in rand_knowledge:
                     await self.parent_game.roles[rand].member.send(f"The oracle reveals to you that {self.parent_game.roles[aa].member.name} is a {self.parent_game.roles[aa].name}.")
             else:
@@ -225,12 +225,19 @@ class SacredTrophyCavePhase(Phase):
         await super().begin_phase()
         rand_idxs = random.sample(list(range(len(self.parent_game.roles))), 4)
         to_cave1 = 0
+        share_pool_1 = []
+        share_pool_2 = []
         for rand in rand_idxs:
             if to_cave1 < len(rand_idxs) / 2:
                 await self.parent_game.roles[rand].member.move_to(self.parent_game.get_channel_by_name("Small Cave"))
+                share_pool_1.append(self.parent_game.roles[rand])
             else:
                 await self.parent_game.roles[rand].member.move_to(self.parent_game.get_channel_by_name("Another Cave"))
+                share_pool_2.append(self.parent_game.roles[rand])
             to_cave1 += 1
+        rand = random.randint(0, 1)
+        await share_pool_1[rand].member.send(f"You learn that {share_pool_1[1-rand].member.name} is a {share_pool_1[1-rand].name}.")
+        await share_pool_2[1-rand].member.send(f"You learn that {share_pool_2[rand].member.name} is a {share_pool_2[rand].name}.")
         self.parent_game.phases.append(SacredTrophyGatheringPhase(self.parent_game))
 
 
