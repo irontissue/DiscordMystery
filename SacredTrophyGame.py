@@ -24,7 +24,8 @@ class SacredTrophyGame(Game):
     REQUIRED_VOICE_CHANNELS = {'Oracle Room': 1, 'Mirror Room': 1, 'Small Cave': 1, 'Another Cave': 1, 'Gathering Area': 1, 'Trophy Room': 1}
     REQUIRED_TEXT_CHANNELS = {}
 
-    POINTS_TO_WIN = 3
+    POINTS_TO_WIN = 4
+    MAX_NUM_CAVE_PHASES = 2
 
     def __init__(self, ctx, bot, starting_room, wanted_roles=None):
         super().__init__(ctx, bot, starting_room, wanted_roles)
